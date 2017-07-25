@@ -318,6 +318,43 @@ class ShareController extends AppController {
 	}
 
 /**
+ * Return this user's information like name and avatar
+ * This data is required for most of our Slack notifications
+ *
+ * @param string $userId UUID
+ * @return array $author, empty if not found or null on error
+ */
+	protected function _getUserInfo($userId) {
+		$author = $this->User->find(
+			'first',
+			[
+				'conditions' => [
+					'User.id' => $userId,
+				],
+				'fields' => [
+					'id',
+					'username'
+				],
+				'contain' => [
+					'Profile' => [
+						'fields' => [
+							'Profile.first_name',
+							'Profile.last_name',
+						],
+						'Avatar' => [
+							'fields' => [
+								'Avatar.*'
+							]
+						]
+					],
+				]
+			]
+		);
+
+		return $author;
+	}
+
+/**
  * Update entry point.
  *
  * @param string $acoModelName aco model name
@@ -401,6 +438,44 @@ class ShareController extends AppController {
 					'resource_id' => $acoInstanceId,
 					'sharer_id' => User::get('id'),
 				]);				
+				
+			$sender = $this->_getUserInfo(User::get('id'));
+			$recipient = $this->_getUserInfo($userId);
+
+			$resource = $this->Resource->find(
+				'first',
+				[
+					'conditions' => [
+						'Resource.id' => $acoInstanceId
+					],
+					'fields' => [
+						'Resource.name',
+						'Resource.username',
+						'Resource.uri',
+						'Resource.description'
+					],
+					'contain' => [
+						'Secret' => [
+							'fields' => [
+								'Secret.data',
+								'Secret.modified',
+							],
+							'conditions' => [
+								'Secret.user_id' => $userId
+							],
+						]
+					]
+				]
+			);
+
+			$event = new CakeEvent('Controller.ShareController.afterShare', $this, 
+			[
+					'sender' => $sender['Profile']['first_name'],
+					'recipient' => $recipient['User']['username'],
+					'resource' => $resource['Resource']['name'],
+			]);
+			$this->getEventManager()->dispatch($event);
+
 		}
 
 		// Prepare output.

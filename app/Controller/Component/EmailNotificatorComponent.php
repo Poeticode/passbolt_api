@@ -6,6 +6,7 @@
  * @copyright (c) 2015 Bolt Softwares Pvt Ltd
  * @licence GNU Affero General Public License http://www.gnu.org/licenses/agpl-3.0.en.html
  */
+
 class EmailNotificatorComponent extends Component {
 
 /**
@@ -158,17 +159,6 @@ class EmailNotificatorComponent extends Component {
 			],
 			'new_password_share'
 		);
-
-		// emit share notification event to Slack
-		$event = new CakeEvent('Controller.EmailNotificatorComponent.afterShare', $this, 
-		['data' => [
-				'sender' => $sharer,
-				'recipient' => $recipient,
-				'resource' => $resource,
-			]
-		]);
-		$this->getEventManager()->dispatch($event);
-
 	}
 
 /**
