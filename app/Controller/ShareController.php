@@ -47,7 +47,7 @@ class ShareController extends AppController {
 		// Check if a user is authorized.
 		$isAuthorized = $this->{$acoModelName}->isAuthorized($acoInstanceId, PermissionType::OWNER);
 		if (!$isAuthorized) {
-			throw new ForbiddenException(__('Your are not allowed to add a permission to the %s.', $acoModelName));
+			throw new ForbiddenException(__('You are not allowed to add a permission to the %s.', $acoModelName));
 		}
 
 		foreach ($permissions as $permission) {
@@ -158,7 +158,7 @@ class ShareController extends AppController {
 				$this->Permission->create();
 				$s = $this->Permission->save($data, ['atomic' => false]);
 				if (!$s) {
-					throw new InternalErrorException(__('Could not savep ermission.'));
+					throw new InternalErrorException(__('Could not save permission.'));
 				}
 			}
 		}
@@ -400,7 +400,7 @@ class ShareController extends AppController {
 				[
 					'resource_id' => $acoInstanceId,
 					'sharer_id' => User::get('id'),
-				]);
+				]);				
 		}
 
 		// Prepare output.

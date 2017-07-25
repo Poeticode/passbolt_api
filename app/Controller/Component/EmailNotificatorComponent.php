@@ -158,6 +158,17 @@ class EmailNotificatorComponent extends Component {
 			],
 			'new_password_share'
 		);
+
+		// emit share notification event to Slack
+		$event = new CakeEvent('Controller.EmailNotificatorComponent.afterShare', $this, 
+		['data' => [
+				'sender' => $sharer,
+				'recipient' => $recipient,
+				'resource' => $resource,
+			]
+		]);
+		$this->getEventManager()->dispatch($event);
+
 	}
 
 /**
